@@ -16,30 +16,51 @@ db = SQLAlchemy(app)
 
 # Create Model
 class Users(db.Model):
-    id= db.column(db.Integer,primary_key=True)
-    name= db.column(db.String(200), nullable=False)
-    email= db.column(db.String(200), nullable=False, unique=True)
-    date_added= db.column(db.DateTime, default=datetime.utcnow)
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(100), nullable=False, unique=True)
+    date_added = db.Column(db.DateTime, default=datetime.utcnow)
 
     # Create a string
     def __repr__(self):
         return '<Name %r>' % self.name
 
-
+# Create form class
+class UserForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    email = StringField('Email', validators=[DataRequired()])
+    submit =  SubmitField('Submit')
 
 # Create form class
 class NamerForm(FlaskForm):
     name = StringField('Whats your name', validators=[DataRequired()])
     submit =  SubmitField('Submit')
 
-# create a route decorator
-@app.route('/')
-
 # def index():
 #     return '<h1>Hello</h1>'
 
 # safe,capitalize,lower,upper,title,trim,striptags
 
+@app.route('/user/add',methods=['GET','POST'])
+def add_user():
+    name = None
+    form=UserForm()
+    if form.validate_on_submit():
+        user = Users.query.filter_by(email=form.email.data).first()
+        if user is None:
+            user = Users(name=form.name.data, email=form.email.data)
+            db.session.add(user)
+            db.session.commit()
+        name = form.name.data
+        form.name.data = ''
+        form.email.data = ''
+        flash('User added')
+    our_users = Users.query.order_by(Users.date_added)
+    return render_template('add_user.html',form=form,name=name,our_users=our_users)
+
+
+# create a route decorator
+@app.route('/')
 def index():
     first_name= 'Chunks'
     # stuff = 'This is <strong>Bold</strong> Text' ** wotks with safe and striptag
