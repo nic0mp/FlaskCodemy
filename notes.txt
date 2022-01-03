@@ -1,0 +1,73 @@
+<!-- main.py -->
+
+from flask import Flask, jsonify, render_template, request
+from forms import AddNumbersForm
+import os
+
+app = Flask(__name__)
+SECRET_KEY = os.urandom(32)
+app.config['SECRET_KEY'] = SECRET_KEY
+
+
+def addit(num1, num2):
+    return str(int(num1) + int(num2))
+
+
+@app.route('/', methods=['GET', 'POST'])
+def add_numbers():
+    num1 = None
+    num2 = None
+    op = None
+    form = AddNumbersForm()
+
+    if request.method == 'POST':
+        num1 = form.num1.data
+        num2 = form.num2.data
+        op = addit(num1, num2)
+
+    return render_template('addNumbers.html', form=form, sum=op)
+
+
+if __name__ == '__main__':
+    app.run(debug=True, host='0.0.0.0')
+
+<!-- forms.py -->
+from flask_wtf import FlaskForm
+from wtforms import SubmitField, IntegerField
+
+
+class AddNumbersForm(FlaskForm):
+    num1 = IntegerField('What is number 1?')
+    num2 = IntegerField('What is number 2?')
+    submit = SubmitField('Add!')
+
+<!-- addnumbers.html -->
+<body>
+<h4 class="form">Add numbers!</h4>
+<div class="container form">
+    <hr>
+    <br>
+    <form action="/" method="post">
+
+        {{ form.hidden_tag() }}
+        <div class="form-group">
+            {{ form.num1.label }}
+            {{ form.num1 }}
+        </div>
+        <div class="form-group">
+            {{ form.num2.label }}
+            {{ form.num2 }}
+        </div>
+        <div class="form-group">
+            {{ form.submit }}
+        </div>
+    </form>
+    <hr>
+    {% if (sum)  %}
+    <p>Sum is {{ sum }}</p>
+    {% endif %}
+    <hr>
+</div>
+
+</body>
+</html>
