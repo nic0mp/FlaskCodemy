@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash
+from flask import Flask, render_template, flash, request
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -31,6 +31,30 @@ class UserForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired()])
     submit =  SubmitField('Submit')
 
+# Update database record
+@app.route('/update/<int:id>', methods=['GET','POST'])
+def update(id):
+    form=UserForm()
+    name_to_update = Users.query.get_or_404(id)
+    if request.method == "POST":
+        name_to_update.name = request.form['name']
+        name_to_update.email = request.form['email']
+        try:
+            db.session.commit()
+            flash('User updated successfully!')
+            return render_template('update.html',
+                form=form,
+                name_to_update=name_to_update)
+        except:
+            flash('Error!')
+            return render_template('update.html',
+                form=form,
+                name_to_update=name_to_update)
+    else:
+        return render_template('update.html',
+                form=form,
+                name_to_update=name_to_update)
+
 # Create form class
 class NamerForm(FlaskForm):
     name = StringField('Whats your name', validators=[DataRequired()])
@@ -38,7 +62,6 @@ class NamerForm(FlaskForm):
 
 # def index():
 #     return '<h1>Hello</h1>'
-
 # safe,capitalize,lower,upper,title,trim,striptags
 
 @app.route('/user/add',methods=['GET','POST'])
