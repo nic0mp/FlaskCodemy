@@ -3,6 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from datetime import datetime
 
 # create a Flask instance
@@ -13,6 +14,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SECRET_KEY'] = 'my secret key nobody needs to know'
 # initialize the db
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # Create Model
 class Users(db.Model):
