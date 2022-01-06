@@ -28,6 +28,8 @@ class Users(db.Model):
     def __repr__(self):
         return '<Name %r>' % self.name
 
+@app.route('/delete/<int:id>')
+
 # Create form class
 class UserForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
